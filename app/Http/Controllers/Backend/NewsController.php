@@ -17,7 +17,7 @@ class NewsController extends Controller
           'title' => 'required',
           'body' => 'required',
         ]);
-        $sucess = false;
+        $success = false;
 
         if (!$validation->fails()) {
             News::updateOrCreate([
@@ -26,10 +26,10 @@ class NewsController extends Controller
               'title' => $request->title,
               'body' => $request->body
             ]);
-            $sucess = true;
+            $success = true;
         }
 
-        return $this->success($sucess);
+        return $this->success($success);
     }
 
     public function getOne(Request $request) {
@@ -40,7 +40,7 @@ class NewsController extends Controller
 
     public function getList(Request $request) {
         $news = News::with('source')
-        ->getList($request)
+        ->getBackendList($request)
         ->paginate(20, '*', null, $request->page ?? 1);
 
         return new NewsCollection($news);
