@@ -25,7 +25,8 @@ class News extends Model
         return $this->morphMany(Favorite::class, 'favorable');
     }
 
-    public function likes() {
+    public function likes()
+    {
         return $this->morphMany(Like::class, 'likeable');
     }
 
@@ -43,21 +44,21 @@ class News extends Model
         return $query;
     }
 
+    public static function scopeGetPopularNews($query)
+    {
+        return $query->orderBy('likes_count', 'desc')->limit(10);
+    }
+
     public function scopeGetFrontendList($query, Request $request)
     {
-
-        $query->when($request->type === 'list', function ($q) use ($request) {
-            $q->paginate(10, '*', null, $request->page ?? 1);
+        $query->when($request->type === 'new', function ($q) use ($request) {
+            $q->orderBy('created_at', $request->order ?? 'desc');
         });
 
         $query->when($request->type === 'popular', function ($q) use ($request) {
-            $q->orderBy('created_at', $request->order)->limit(10);
+            $q->orderBy('likes_count', $request->order ?? 'desc');
         });
 
-        $query->when($request->type === 'latest', function ($q) use ($request) {
-            $q->orderBy('created_at', $request->order)->limit(10);
-        });
-
-        return $request;
+        return $query;
     }
 }

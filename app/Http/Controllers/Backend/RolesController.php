@@ -36,7 +36,7 @@ class RolesController extends Controller
 
     public function getList(Request $request)
     {
-        $roles = Role::withCount('users')->get();
+        $roles = Role::get();
 
         return new RolesCollection($roles);
     }

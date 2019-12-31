@@ -33,6 +33,8 @@ Route::group([
         Route::post('save', 'NewsSourcesController@save');
         Route::get('get-one/{id}', 'NewsSourcesController@getOne');
         Route::post('get-list', 'NewsSourcesController@getList');
+        Route::get('is-unique-domain/{url}', 'NewsSourcesController@isUniqueDomain');
+        Route::get('is-unique-name/{name}', 'NewsSourcesController@isUniqueName');
         Route::get('delete/{id}', 'NewsSourcesController@delete');
     });
 
@@ -42,6 +44,12 @@ Route::group([
         Route::post('save-type', 'LikesController@saveType');
         Route::get('get-all-types', 'LikesController@getAllTypes');
         Route::get('delete/{id}', 'LikesController@delete');
+    });
+
+    Route::group([
+        'prefix' => 'roles',
+    ], function () {
+        Route::get('get-list', 'RolesController@getList');
     });
 
 });
@@ -66,7 +74,21 @@ Route::group([
     'prefix' => 'news'
 ], function () {
     Route::get('get-one/{id}', 'NewsController@getOne');
+    Route::get('get-popular', 'NewsController@getPopular');
     Route::post('get-list', 'NewsController@getList');
+    Route::get('dispatch-job', 'NewsController@dispatchJob');
+});
+
+
+Route::group([
+    'prefix' => 'users'
+], function () {
+    Route::get('is-unique-email/{email}', 'UsersController@isUniqueEmail');
+    Route::post('regist', 'UsersController@regist');
+    Route::get('accept-registration/{token}', 'UsersController@acceptRegistration');
+    Route::post('login', 'UsersController@login');
+    Route::get('logout', 'UsersController@logout')->middleware('auth:api');
+    Route::get('get-curr-user', 'UsersController@getCurrUser')->middleware('auth:api');
 });
 
 Route::group([

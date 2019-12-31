@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers\Backend;
 
+use App\Http\Resources\Backend\NewsSources\NewsSourceCollection;
+use App\Http\Resources\Backend\NewsSources\NewsSourceResource;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\NewsSource;
-use App\Resources\NewsSource\{NewsSourceResource, NewsSourceCollection};
 
 class NewsSourcesController extends Controller
 {
     public function save(Request $request) {
         $validation = Validator::make($request->all(), [
-          'id' => 'exists:news_sources',
-          'name' => 'required',
-          'url' => 'required'
+            'id' => 'exists:news_sources',
+            'url' => 'required|url',
+            'active_parse' => 'required|boolean',
+            'parse_interval' => 'required|in:1,10,15,30,60',
+            'show' => 'required|boolean',
         ]);
         $success = false;
 
         if (!$validation->fails()) {
-            NewsSource::updateOrCreate([
-              'id'=> $request->id
-            ], [
-                'name' => $request->name,
-                'url' => $request->url
-            ]);
+            NewsSource::updateOrCreate(['id' => $request->id], $request->all());
             $success = true;
         }
 
@@ -42,7 +40,19 @@ class NewsSourcesController extends Controller
         ->getList($request)
         ->paginate(20, null, '*', $request->page ?? 1);
 
-        return new NewsCollection($newsList);
+        return new NewsSourceCollection($newsList);
+    }
+
+    public function isUniqueName(Request $request) {
+         $exists = NewsSource::where('name', $request->name)->exists();
+
+         return $this->success(!$exists);
+    }
+
+    public function isUniqueDomain(Request $request) {
+        $exists = NewsSource::where('url', $request->url)->exists();
+
+        return $this->success(!$exists);
     }
 
     public function delete(Request $request) {
