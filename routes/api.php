@@ -77,6 +77,7 @@ Route::group([
     Route::get('get-popular', 'NewsController@getPopular');
     Route::post('get-list', 'NewsController@getList');
     Route::get('dispatch-job', 'NewsController@dispatchJob');
+    Route::get('get-filters/{id?}', 'NewsController@getFilters');
 });
 
 
@@ -97,6 +98,3 @@ Route::group([
     Route::post('toggle', 'LikesController@toggle');
     Route::post('get-all', 'LikesController@getAll');
 });
-
-
-

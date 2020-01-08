@@ -6,22 +6,42 @@ use App\Http\Resources\News\NewsCollection;
 use App\Http\Resources\News\NewsResource;
 use App\Jobs\ParseHabrahabr;
 use App\Jobs\Parsers\Habrahabr\RunParcing;
-use App\News;
-use App\NewsSource;
+use App\{News, NewsCategory, NewsSource};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Categories\CategoriesCollection;
+use App\Http\Resources\NewsSources\NewsSourcesCollection;
 
 class NewsController extends Controller
 {
 
     public function getList(Request $request)
     {
-        $news = News::with(['source'])
-            ->withCount(['comments', 'likes'])
+        $news = News::with(['source', 'category'])
+            ->whereHas('category', function($q) use ($request) {
+              $q->where('id', $request->category_id);
+            })->withCount(['comments', 'likes'])
             ->getFrontendList($request)
             ->paginate(10, '*', null, $request->page ?? 1);
 
         return new NewsCollection($news);
+    }
+
+    public function getFilters(Request $request) {
+        $sources = NewsSource::whereHas('news')->get();
+        $categories = [];
+
+        if (!empty($sources)) {
+          $sourceId = $request->id ?? $sources->pluck('id')->first();
+          $categories = NewsCategory::where('source_id', $sourceId)
+            ->withCount('articles')
+            ->get();
+        }
+
+        return response()->json([
+          'sources' => new NewsSourcesCollection($sources),
+          'categories' =>  new CategoriesCollection($categories)
+        ]);
     }
 
     public function getPopular()

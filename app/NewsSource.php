@@ -10,21 +10,13 @@ class NewsSource extends Model
     public $table = 'news_sources';
     public $timestamps = true;
     protected $guarded = [];
-    
+
     public function news() {
-      return $this->hasMany(News::class);
+      return $this->hasMany(News::class, 'source_id');
     }
 
-    public function scopeGetList($query, Request $request) {
-
-      $query->when($request->orderType == 'new', function($q) use ($request) {
-          $q->orderBy('created_at', $request->order ?? 'desc');
-      });
-
-      $query->when($request->orderType == 'count', function($q) use ($request) {
-          $q->orderBy('news_count', $request->order ?? 'desc');
-      });
-
-      return $query;
+    public function parsed_by_categories() {
+      return $this->hasMany(NewsCategory::class, 'source_id')->withCount('articles');
     }
+
 }

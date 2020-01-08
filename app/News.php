@@ -30,6 +30,10 @@ class News extends Model
         return $this->morphMany(Like::class, 'likeable');
     }
 
+    public function category() {
+        return $this->belongsTo(NewsCategory::class);
+    }
+
     public function scopeGetBackendList($query, Request $request)
     {
 

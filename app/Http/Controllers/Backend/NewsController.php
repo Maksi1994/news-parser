@@ -11,27 +11,6 @@ use App\News;
 class NewsController extends Controller
 {
 
-    public function save(Request $request) {
-        $validation = Validator::make($request->all(), [
-          'id' => 'exists:news',
-          'title' => 'required',
-          'body' => 'required',
-        ]);
-        $success = false;
-
-        if (!$validation->fails()) {
-            News::updateOrCreate([
-              'id' => $request->id
-            ], [
-              'title' => $request->title,
-              'body' => $request->body
-            ]);
-            $success = true;
-        }
-
-        return $this->success($success);
-    }
-
     public function getOne(Request $request) {
         $news = News::with('source')->find($request->id);
 

@@ -14,31 +14,39 @@ class NewsSourcesController extends Controller
     public function save(Request $request) {
         $validation = Validator::make($request->all(), [
             'id' => 'exists:news_sources',
-            'url' => 'required|url',
-            'active_parse' => 'required|boolean',
-            'parse_interval' => 'required|in:1,10,15,30,60',
-            'show' => 'required|boolean',
+            'source' => 'required|url',
+            'name' => 'required|min:3',
+            'active_parse' => 'boolean',
+            'parse_interval' => 'required|in:1,15,30',
+            'show' => 'boolean',
         ]);
         $success = false;
 
         if (!$validation->fails()) {
-            NewsSource::updateOrCreate(['id' => $request->id], $request->all());
+            $id = NewsSource::updateOrCreate(['id' => $request->id], $request->all())->id;
             $success = true;
         }
 
-        return $this->success($success);
+        return response()->json(compact('id', 'success'));
     }
 
     public function getOne(Request $request) {
-        $news = NewsSource::withCount('news')->find($request->id);
+        $news = NewsSource::withCount([
+          'news'
+        ])->with([
+          'news' => function($q) {
+           $q->latest()->limit(1);
+        },
+          'parsed_by_categories'
+        ])->find($request->id);
 
         return new NewsSourceResource($news);
     }
 
     public function getList(Request $request) {
         $newsList = NewsSource::withCount('news')
-        ->getList($request)
-        ->paginate(20, null, '*', $request->page ?? 1);
+        ->orderBy('news_count', 'desc')
+        ->paginate(20, '*', null, $request->page ?? 1);
 
         return new NewsSourceCollection($newsList);
     }
