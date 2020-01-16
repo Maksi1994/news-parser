@@ -79,6 +79,24 @@ class UsersController extends Controller
         return ['success' => false];
     }
 
+    public function update(Request $request) {
+        $validation = Validator::make($request->all(), [
+            'first_name' => 'required|min:3',
+            'last_name' => 'required|min:3'
+        ]);
+        $success = false;
+
+        if (!$validation->fails()) {
+            $success = (boolean) $request->user()->update($request->only([
+                    'first_name',
+                    'last_name',
+                ]));
+        }
+
+
+        return $this->success($success);
+    }
+
     public function getOne(Request $request)
     {
         $user = User::find($request->id);

@@ -48,9 +48,18 @@ class News extends Model
         return $query;
     }
 
-    public static function scopeGetPopularNews($query)
+    public static function scopeGetPopularNews($query, Request $request)
     {
-        return $query->orderBy('likes_count', 'desc')->limit(10);
+        $query->when($request->orderType === 'discussing', function ($q) use($request) {
+            $q->orderBy('comments_count', $request->order);
+        });
+
+        $query->when($request->orderType === 'likeable', function ($q) use ($request) {
+            $q->orderBy('like_count', $request->order);
+        });
+
+
+        return $query;
     }
 
     public function scopeGetFrontendList($query, Request $request)

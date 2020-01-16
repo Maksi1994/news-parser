@@ -78,6 +78,7 @@ Route::group([
     Route::post('get-list', 'NewsController@getList');
     Route::get('dispatch-job', 'NewsController@dispatchJob');
     Route::get('get-filters/{id?}', 'NewsController@getFilters');
+    Route::get('get-latest-news', 'NewsController@getLatestNews');
 });
 
 
@@ -90,6 +91,7 @@ Route::group([
     Route::post('login', 'UsersController@login');
     Route::get('logout', 'UsersController@logout')->middleware('auth:api');
     Route::get('get-curr-user', 'UsersController@getCurrUser')->middleware('auth:api');
+    Route::post('update', 'UsersController@update')->middleware('auth:api');
 });
 
 Route::group([
